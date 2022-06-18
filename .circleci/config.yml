@@ -23,6 +23,16 @@ jobs:
       - checkout
       - run: echo World!
 
+  print-env:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: MY_NAME
+          command:
+            echo $MY_NAME
+
 # Invoke jobs via workflows
 workflows:
   say-hello-workflow:
@@ -31,3 +41,4 @@ workflows:
       - print-world:
           requires:
             - print-hello
+      - print-env
