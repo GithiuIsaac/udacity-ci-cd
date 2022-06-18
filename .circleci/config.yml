@@ -30,7 +30,7 @@ jobs:
       - checkout
       - run:
           name: MY_NAME
-          command:
+          command: |
             echo $MY_NAME
 
 # Invoke jobs via workflows
