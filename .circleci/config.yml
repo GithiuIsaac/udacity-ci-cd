@@ -1,20 +1,18 @@
-version: 2.1
+# Creates a job that has an intentional failure in it with a step that runs 
+# on fail that prints "Hello Error!" to the console.
 
-commands:
-  print_pipeline_id:
-    parameters:
-      branch:
-        type: string
-    steps:
-      - run: echo <<  parameters.branch >>
+version: 2.1
 
 jobs:
   my_job:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - print_pipeline_id:
-          branch: << pipeline.git.branch >>
+      - run: exit 1
+      - run:
+          name: on error
+          command: echo "Hello Error!"
+          when: on_fail
 
 workflows:
   my_workflow:
