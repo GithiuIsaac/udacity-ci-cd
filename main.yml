@@ -1,0 +1,17 @@
+---
+  # Exercise for setting up a web server in an EC
+- name: Exercise for setting up a web server in an EC 
+  # hosts: ubuntu
+  # Use the public IP if the VM is already created
+  hosts: all
+  # For Ubuntu instances, the user will be `ubuntu`
+  # For Amazon LInux 2 instance, the user will be `ec2-user`
+  user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+    - setup
+
+# Assuming the udacity.pem and inventory files are present in the current directory
+# ansible-playbook main-remote.yml -i inventory --private-key udacity.pem
