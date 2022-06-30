@@ -27,9 +27,13 @@ jobs:
           command: |
             apk add --update ansible
       - run:
+          name: Troubleshooting
+          command: |
+            cat inventory.txt      
+      - run:
           name: Configure Server
           command: |
-            ansible-playbook main.yml 
+            ansible-playbook -i inventory.txt main.yml 
 
 workflows:
   Infrastructure:
