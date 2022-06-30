@@ -1,6 +1,32 @@
 version: 2.1
 
+commands:
+# Reusable command to destroy the green infrastructure if it fails or is no longer needed
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7}
+          # ${CIRCLE_WORKFLOW_ID}: Built-in environment variable 
+           
+
 jobs:
+  create_infrastructure: 
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7} \
+              --region us-east-1
+
+
   # # Job to create the infrastructure
   # create_infrastructure: 
   #   docker:
@@ -14,7 +40,8 @@ jobs:
   #             --template-file template.yml \
   #             --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
   #             --region us-east-1
-
+              # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID
+              
   # # Job to configure the created infrastructure
   # configure_infrastructure:
   #   docker:
@@ -33,27 +60,38 @@ jobs:
   #         command: |
   #           ansible-playbook -i inventory.txt main.yml 
   
+  # # Job to perform Smoke Testing
+  # smoke_test:
+  #   docker:
+  #     - image: alpine:latest
+  #   steps:
+  #     - run: apk add --update curl
+  #     - run:
+  #         name: smoke test
+  #         command: |
+  #           URL="https://blog.udacity.com/"
+  #           # Test if website exists
+  #           if curl -s --head ${URL} 
+  #           then
+  #             return 0
+  #           else
+  #             return 1
+  #           fi
+
   # Job to perform Smoke Testing
   smoke_test:
     docker:
       - image: alpine:latest
     steps:
-      - run: apk add --update curl
       - run:
-          name: smoke test
-          command: |
-            URL="https://blog.udacity.com/"
-            # Test if website exists
-            if curl -s --head ${URL} 
-            then
-              return 0
-            else
-              return 1
-            fi
+          name: Test job
+        # Fail the job intentionally to simulate an error.
+          command:  return 1
+      - destroy_environment  
 
 workflows:
   Infrastructure:
     jobs:
-      # - create_infrastructure
+       - create_infrastructure
       # - configure_infrastructure
       - smoke_test
